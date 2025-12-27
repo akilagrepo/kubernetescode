@@ -1,34 +1,17 @@
-node {
-    def app
+pipeline {
+    agent any
 
-    stage('Clone repository') {
-      
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Code checked out successfully'
+            }
+        }
 
-        checkout scm
-    }
-
-    stage('Build image') {
-  
-       app = docker.build("raj80dockerid/test")
-    }
-
-    stage('Test image') {
-  
-
-        app.inside {
-            sh 'echo "Tests passed"'
+        stage('Build image') {
+            steps {
+                echo 'Build stage is running'
+            }
         }
     }
-
-    stage('Push image') {
-        
-        docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
-            app.push("${env.BUILD_NUMBER}")
-        }
-    }
-    
-    stage('Trigger ManifestUpdate') {
-                echo "triggering updatemanifestjob"
-                build job: 'updatemanifest', parameters: [string(name: 'DOCKERTAG', value: env.BUILD_NUMBER)]
-        }
 }
